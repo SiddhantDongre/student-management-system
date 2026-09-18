@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Student Management System powered by FastAPI and Supabase" />
+  <title>StudentFlow | Student Management</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css" />
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <a href="#" class="brand">
+        <div class="brand-logo">SF</div>
+        <div class="brand-text">
+          <strong>StudentFlow</strong>
+          <span>Management System</span>
+        </div>
+      </a>
+
+      <p class="menu-label">WORKSPACE</p>
+
+      <nav class="menu">
+        <a href="#overview" class="menu-item active">
+          <span class="menu-icon">▦</span>
+          <span>Overview</span>
+        </a>
+        <a href="#students" class="menu-item">
+          <span class="menu-icon">◎</span>
+          <span>Students</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-card">
+        <div class="connection-line">
+          <span class="connection-dot"></span>
+          Backend Online
+        </div>
+        <p>FastAPI + Supabase</p>
+      </div>
+
+      <div class="sidebar-profile">
+        <div class="avatar">SD</div>
+        <div>
+          <strong>Administrator</strong>
+          <span>Student Portal</span>
+        </div>
+      </div>
+    </aside>
+
+    <main class="content">
+      <header class="header">
+        <div>
+          <div class="breadcrumb">Dashboard <span>/</span> Students</div>
+          <h1>Student Management</h1>
+          <p>Manage student information from one clean workspace.</p>
+        </div>
+
+        <div class="header-actions">
+          <button class="btn btn-light" id="refreshButton">
+            <span>↻</span>
+            Refresh
+          </button>
+          <button class="btn btn-primary" id="addStudentButton">
+            <span>＋</span>
+            Add Student
+          </button>
+        </div>
+      </header>
+
+      <section class="hero" id="overview">
+        <div>
+          <span class="hero-tag">ACADEMIC OPERATIONS</span>
+          <h2>Everything you need to manage your student records.</h2>
+          <p>Fast, simple CRUD operations backed by FastAPI and Supabase.</p>
+        </div>
+        <div class="hero-shape">
+          <div class="mini-card mini-card-one">
+            <span>Database</span>
+            <strong>Supabase</strong>
+          </div>
+          <div class="mini-card mini-card-two">
+            <span>Backend</span>
+            <strong>FastAPI</strong>
+          </div>
+        </div>
+      </section>
+
+      <section class="metrics">
+        <article class="metric">
+          <div class="metric-icon">👥</div>
+          <div>
+            <span>Total Students</span>
+            <strong id="totalStudents">0</strong>
+          </div>
+          <small>Current records</small>
+        </article>
+
+        <article class="metric">
+          <div class="metric-icon">📊</div>
+          <div>
+            <span>Average Marks</span>
+            <strong id="averageMarks">0</strong>
+          </div>
+          <small>Overall average</small>
+        </article>
+
+        <article class="metric">
+          <div class="metric-icon">🏆</div>
+          <div>
+            <span>Highest Marks</span>
+            <strong id="highestMarks">0</strong>
+          </div>
+          <small>Best performance</small>
+        </article>
+
+        <article class="metric">
+          <div class="metric-icon">✓</div>
+          <div>
+            <span>Passing</span>
+            <strong id="passingStudents">0</strong>
+          </div>
+          <small>40 marks or above</small>
+        </article>
+      </section>
+
+      <section class="card" id="students">
+        <div class="card-header">
+          <div>
+            <span class="section-kicker">STUDENT DIRECTORY</span>
+            <h3>All Students</h3>
+            <p>Search, edit, or delete any record stored in Supabase.</p>
+          </div>
+
+          <div class="filters">
+            <div class="search">
+              <span>⌕</span>
+              <input id="searchInput" type="search" placeholder="Search name, course or ID..." />
+            </div>
+          </div>
+        </div>
+
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Student</th>
+                <th>Course</th>
+                <th>Marks</th>
+                <th>Performance</th>
+                <th>ID</th>
+                <th class="right">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="studentTableBody">
+              <tr>
+                <td colspan="6" class="loading-cell">
+                  <div class="spinner"></div>
+                  Loading student records...
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="card-footer">
+          <span id="recordCount">Showing 0 students</span>
+          <span class="api-label">API: 127.0.0.1:8000</span>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Student Form Modal -->
+  <div class="modal-overlay hidden" id="studentModal">
+    <div class="modal">
+      <div class="modal-top">
+        <div>
+          <span class="section-kicker" id="modalKicker">NEW STUDENT</span>
+          <h3 id="modalTitle">Add Student</h3>
+          <p id="modalDescription">Enter student information below.</p>
+        </div>
+        <button class="close-btn" id="closeModal" aria-label="Close modal">×</button>
+      </div>
+
+      <form id="studentForm">
+        <input type="hidden" id="studentId" />
+
+        <div class="field">
+          <label for="studentName">Student Name</label>
+          <input
+            id="studentName"
+            type="text"
+            placeholder="e.g. Siddhant Dongre"
+            autocomplete="off"
+            required
+          />
+        </div>
+
+        <div class="field">
+          <label for="studentCourse">Course</label>
+          <input
+            id="studentCourse"
+            type="text"
+            placeholder="e.g. IT"
+            autocomplete="off"
+            required
+          />
+        </div>
+
+        <div class="field">
+          <div class="field-label-row">
+            <label for="studentMarks">Marks</label>
+            <span>0 - 100</span>
+          </div>
+          <input
+            id="studentMarks"
+            type="number"
+            min="0"
+            max="100"
+            placeholder="e.g. 87"
+            required
+          />
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn btn-light" id="cancelButton">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="saveButton">Save Student</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Delete Confirmation -->
+  <div class="modal-overlay hidden" id="deleteModal">
+    <div class="modal modal-small">
+      <div class="delete-icon">!</div>
+      <h3>Delete student?</h3>
+      <p id="deleteMessage">This action cannot be undone.</p>
+      <div class="modal-actions centered">
+        <button class="btn btn-light" id="cancelDelete">Cancel</button>
+        <button class="btn btn-danger" id="confirmDelete">Delete Student</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast">
+    <span class="toast-icon">✓</span>
+    <span id="toastMessage">Success</span>
+  </div>
+
+  <footer>
+    <p> @ Dev Siddhant Dongre </p>
+  </footer>
+
+  <script src="assets/js/app.js"></script>
+</body>
+</html>
